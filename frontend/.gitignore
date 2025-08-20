@@ -1,0 +1,15 @@
+# Python specific ignores
+__pycache__/
+*.pyc
+.Python
+venv/  # Your Python virtual environment
+.env   # Environment variables (if you use them)
+
+# Node.js/React specific ignores
+node_modules/
+dist/      # Vite's build output directory
+.DS_Store  # macOS specific
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.idea/     # PyCharm project files (optional, but generally good to ignore)
