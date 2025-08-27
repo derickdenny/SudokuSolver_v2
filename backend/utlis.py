@@ -6,14 +6,12 @@ def intializePredictionModel():
     model = load_model("Resources/model_trained_8.keras")
     return model
 
-# 1-Preprocessing Image
 def preProcess(img):
     imgGray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     imgBlur = cv2.GaussianBlur(imgGray, (5, 5), 1)
     imgThreshold = cv2.adaptiveThreshold(imgBlur, 255, 1, 1, 11, 2)
     return imgThreshold
 
-# 2 - reorder points for wrap perspective
 def reorder(myPoints):
     myPoints = myPoints.reshape((4, 2))
     myPointsNew = np.zeros((4,1,2), dtype= np.int32)
@@ -25,7 +23,6 @@ def reorder(myPoints):
     myPointsNew[2] = myPoints[np.argmax(diff)]
     return myPointsNew
 
-# 3. finding the biggest contour
 def biggestContour(contours):
     biggest = np.array([])
     maxArea = 0
@@ -39,7 +36,6 @@ def biggestContour(contours):
                 maxArea = area
     return biggest, maxArea
 
-# 4. Split the image into 81 diff images
 def splitBoxes(img):
     rows = np.vsplit(img,9)
     boxes = []
@@ -49,27 +45,24 @@ def splitBoxes(img):
             boxes.append(box)
     return boxes
 
-# 5. get prediction on all images
 def getPrediction(boxes, model):
     result = []
     for image in boxes:
         img = np.asarray(image)
         img = img[4: img.shape[0] - 4, 4: img.shape[1] - 4]
         img = cv2.resize(img, (32, 32))
-        img = img / 255
+        img = img / 255.0
         img = img.reshape(1, 32, 32, 1)
-        predictions = model.predict(img)
+        predictions = model.predict(img, verbose=0)
         classIndex = np.argmax(predictions, axis=-1)
         probabilityValue = np.amax(predictions)
         print(f"Prediction: {classIndex}, Probability: {probabilityValue:.2f}")
         if probabilityValue > 0.7:
-            result.append(classIndex[0])
+            result.append(int(classIndex[0]))
         else:
             result.append(0)
     return result
 
-
-# 6. display the solution on the image
 def displayNumbers(img, numbers, color=(0,255,0)):
     secW = int(img.shape[1]/9)
     secH = int(img.shape[0]/9)
@@ -82,7 +75,6 @@ def displayNumbers(img, numbers, color=(0,255,0)):
                             2, color, 2, cv2.LINE_AA)
     return img
 
-# 7. draw grid
 def drawGrid(img):
     secW = int(img.shape[1]/9)
     secH = int(img.shape[0]/9)
@@ -95,7 +87,6 @@ def drawGrid(img):
         cv2.line(img,pt3,pt4,(255,255,0),2)
     return img
 
-# 8. stack images
 def stackImages(imgArray, scale):
     rows = len(imgArray)
     if rows == 0 or not isinstance(imgArray[0], (list, np.ndarray)):
